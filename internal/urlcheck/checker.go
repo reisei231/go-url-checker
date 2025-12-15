@@ -72,6 +72,7 @@ func (c *Checker) Check(ctx context.Context, urls []string) ([]Result, error) {
 		}()
 	}
 	go func() {
+		defer close(jobs)
 		for idx, url := range urls {
 			select {
 			case <-ctx.Done():
@@ -79,7 +80,6 @@ func (c *Checker) Check(ctx context.Context, urls []string) ([]Result, error) {
 			case jobs <- job{idx: idx, url: url}:
 			}
 		}
-		close(jobs)
 	}()
 	go func() {
 		wg.Wait()
